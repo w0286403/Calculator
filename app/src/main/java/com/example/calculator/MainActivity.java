@@ -17,7 +17,9 @@ public class MainActivity extends AppCompatActivity {
 
     double leftNum, rightNum;
     char operator;
+    boolean hasOperator = false;
     StringBuilder numString = new StringBuilder("");
+    boolean isNewCalculation = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,122 +49,186 @@ public class MainActivity extends AppCompatActivity {
         btn_eight = findViewById(R.id.btn_eight);
         btn_nine = findViewById(R.id.btn_nine);
 
-        btn_zero.setOnClickListener(onButtonClicked);
-        btn_one.setOnClickListener(onButtonClicked);
-        btn_two.setOnClickListener(onButtonClicked);
-        btn_three.setOnClickListener(onButtonClicked);
-        btn_four.setOnClickListener(onButtonClicked);
-        btn_five.setOnClickListener(onButtonClicked);
-        btn_six.setOnClickListener(onButtonClicked);
-        btn_seven.setOnClickListener(onButtonClicked);
-        btn_eight.setOnClickListener(onButtonClicked);
-        btn_nine.setOnClickListener(onButtonClicked);
+        btn_zero.setOnClickListener(onNumberClicked);
+        btn_one.setOnClickListener(onNumberClicked);
+        btn_two.setOnClickListener(onNumberClicked);
+        btn_three.setOnClickListener(onNumberClicked);
+        btn_four.setOnClickListener(onNumberClicked);
+        btn_five.setOnClickListener(onNumberClicked);
+        btn_six.setOnClickListener(onNumberClicked);
+        btn_seven.setOnClickListener(onNumberClicked);
+        btn_eight.setOnClickListener(onNumberClicked);
+        btn_nine.setOnClickListener(onNumberClicked);
 
         btn_clear.setOnClickListener(onButtonClicked);
         btn_delete.setOnClickListener(onButtonClicked);
-        btn_posAndNeg.setOnClickListener(onButtonClicked);
-        btn_divide.setOnClickListener(onButtonClicked);
-        btn_multiply.setOnClickListener(onButtonClicked);
-        btn_subtract.setOnClickListener(onButtonClicked);
-        btn_add.setOnClickListener(onButtonClicked);
-        btn_decimal.setOnClickListener(onButtonClicked);
         btn_evaluate.setOnClickListener(onButtonClicked);
+        btn_posAndNeg.setOnClickListener(onNumberClicked);
+        btn_decimal.setOnClickListener(onNumberClicked);
 
-
-
+        btn_divide.setOnClickListener(onOperatorClicked);
+        btn_multiply.setOnClickListener(onOperatorClicked);
+        btn_subtract.setOnClickListener(onOperatorClicked);
+        btn_add.setOnClickListener(onOperatorClicked);
 
     }//end OnCreate
 
-    public View.OnClickListener onButtonClicked = new View.OnClickListener(){
+    public View.OnClickListener onNumberClicked = new View.OnClickListener(){
         @Override
         public void onClick(View view){
-            String buttonValue = "";
+            if (isNewCalculation){
+                et_displayTotal.setText("");
+            }
+            isNewCalculation = false;
             switch (view.getId()){
                 case (R.id.btn_zero):
-                    buttonValue = "0";
+                    numString.append("0");
                     break;
                 case (R.id.btn_one):
-                    buttonValue = "1";
+                    numString.append("1");
                     break;
                 case (R.id.btn_two):
-                    buttonValue = "2";
+                    numString.append("2");
                     break;
                 case (R.id.btn_three):
-                    buttonValue = "3";
+                    numString.append("3");
                     break;
                 case (R.id.btn_four):
-                    buttonValue = "4";
+                    numString.append("4");
                     break;
                 case (R.id.btn_five):
-                    buttonValue = "5";
+                    numString.append("5");
                     break;
                 case (R.id.btn_six):
-                    buttonValue = "6";
+                    numString.append("6");
                     break;
                 case (R.id.btn_seven):
-                    buttonValue = "7";
+                    numString.append("7");
                     break;
                 case (R.id.btn_eight):
-                    buttonValue = "8";
+                    numString.append("8");
                     break;
                 case (R.id.btn_nine):
-                    buttonValue = "9";
-                    break;
-                case (R.id.btn_clear):
-                    numString.setLength(0);
-                    buttonValue = "0";
-                    break;
-                case (R.id.btn_delete):
-                    numString.deleteCharAt(numString.length()-1);
-                    break;
-                case (R.id.btn_posAndNeg):
-                    buttonValue = "-";
-                    numString.insert(0,buttonValue);
-                    break;
-                case (R.id.btn_divide):
-                    leftNum = Double.parseDouble(numString.toString());
-                    buttonValue = " /";
-                    operator = '/';
-                    break;
-                case (R.id.btn_multiply):
-                    leftNum = Double.parseDouble(numString.toString());
-                    buttonValue = " *";
-                    operator = '*';
-                    break;
-                case (R.id.btn_subtract):
-                    leftNum = Double.parseDouble(numString.toString());
-                    buttonValue = " -";
-                    operator = '-';
-                    break;
-                case (R.id.btn_add):
-                    leftNum = Double.parseDouble(numString.toString());
-                    buttonValue = " +";
-                    operator = '+';
+                    numString.append("9");
                     break;
                 case (R.id.btn_decimal):
-                    buttonValue = ".";
+                    if (!numString.toString().contains(".")){
+                        numString.append(".");
+                    }
+                    break;
+                case (R.id.btn_posAndNeg):
+                    if (!numString.toString().contains("-")){
+                        numString.insert(0,"-");
+                    }else{
+                        numString.deleteCharAt(0);
+                    }
                     break;
                 default:
                     break;
             }
-            setNumString(buttonValue);
+            et_displayTotal.setText(numString);
         }
     };
 
-    public void setNumString(String buttonValue){
+    public View.OnClickListener onOperatorClicked = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case (R.id.btn_divide):
+                    if (!hasOperator){
+                        if (leftNum != 0){
+                            numString.replace(0,numString.length(),callCalculation());
+                            et_displayTotal.setText(numString);
+                        }
+                        setCalculation();
+                        operator = '/';
+                    }else{
+                        break;
+                    }
+                    break;
+                case (R.id.btn_multiply):
+                    if (!hasOperator){
+                        if (leftNum != 0){
+                            numString.replace(0,numString.length(),callCalculation());
+                            et_displayTotal.setText(numString);
+                        }
+                        setCalculation();
+                        operator = '*';
+                    }else{
+                        break;
+                    }
+                    break;
+                case (R.id.btn_subtract):
+                    if (!hasOperator){
+                        if (leftNum != 0){
+                            numString.replace(0,numString.length(),callCalculation());
+                            et_displayTotal.setText(numString);
+                        }
+                        setCalculation();
+                        operator = '-';
+                    }else{
+                        break;
+                    }
+                    break;
+                case (R.id.btn_add):
+                    if (!hasOperator){
+                        if (leftNum != 0){
+                            numString.replace(0,numString.length(),callCalculation());
+                            et_displayTotal.setText(numString);
+                        }
+                        setCalculation();
+                        operator = '+';
+                    }else{
+                        break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
-        numString.append(buttonValue);
+    public View.OnClickListener onButtonClicked = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case (R.id.btn_clear):
+                    numString.replace(0,numString.length(),"");
+                    isNewCalculation = true;
+                    et_displayTotal.setText("0");
+                    break;
+                case (R.id.btn_delete):
+                    if (numString.length() > 1 ){
+                        numString.deleteCharAt(numString.length()-1);
+                        et_displayTotal.setText(numString);
+                    }else{
+                        numString.setLength(0);
+                        et_displayTotal.setText("0");
+                    }
+                    break;
+                case (R.id.btn_evaluate):
+                    hasOperator = false;
+                    numString.replace(0,numString.length(),callCalculation());
+                    et_displayTotal.setText(numString);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
-        et_displayTotal.setText(numString);
+    public void setCalculation(){
+        hasOperator = true;
+        leftNum = Double.parseDouble(numString.toString());
+        numString.setLength(0);
     }
 
-    public void callCalculation(){
-        calculation.calculate(leftNum,rightNum,operator);
+    public String callCalculation(){
+        rightNum = Double.parseDouble(numString.toString());
+        double result = calculation.calculate(leftNum,rightNum,operator);
+        return Double.toString(result);
     }
 
-    public void getLeftNumber(){
-        String stringLeftNumber = numString.toString();
-    }
 
 
 
