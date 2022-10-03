@@ -20,6 +20,7 @@ public class Calculations {
             default:
                 break;
         }
+
         return result;
 
     }

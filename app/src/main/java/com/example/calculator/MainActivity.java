@@ -1,9 +1,14 @@
 package com.example.calculator;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.annotation.SuppressLint;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
+
+import java.text.MessageFormat;
+import java.util.regex.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,9 +85,14 @@ public class MainActivity extends AppCompatActivity {
                 et_displayTotal.setText("");
             }
             isNewCalculation = false;
+
             switch (view.getId()){
                 case (R.id.btn_zero):
-                    numString.append("0");
+                    if (Pattern.matches("^0+$",numString)){
+                        break;
+                    }else{
+                        numString.append("0");
+                    }
                     break;
                 case (R.id.btn_one):
                     numString.append("1");
@@ -113,7 +123,11 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case (R.id.btn_decimal):
                     if (!numString.toString().contains(".")){
-                        numString.append(".");
+                        if (numString.length()==0){
+                            numString.append("0.");
+                        }else{
+                            numString.append(".");
+                        }
                     }
                     break;
                 case (R.id.btn_posAndNeg):
@@ -126,65 +140,43 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
-            et_displayTotal.setText(numString);
+            if (numString.length() != 0){
+                et_displayTotal.setText(numString);
+            }else{
+                et_displayTotal.setText("0");
+            }
         }
     };
 
     public View.OnClickListener onOperatorClicked = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            switch (view.getId()){
-                case (R.id.btn_divide):
-                    if (!hasOperator){
-                        if (leftNum != 0){
-                            numString.replace(0,numString.length(),callCalculation());
-                            et_displayTotal.setText(numString);
-                        }
+
+            if (!hasOperator){
+                switch (view.getId()){
+                    case (R.id.btn_divide):
                         setCalculation();
                         operator = '/';
-                    }else{
                         break;
-                    }
-                    break;
-                case (R.id.btn_multiply):
-                    if (!hasOperator){
-                        if (leftNum != 0){
-                            numString.replace(0,numString.length(),callCalculation());
-                            et_displayTotal.setText(numString);
-                        }
+                    case (R.id.btn_multiply):
                         setCalculation();
                         operator = '*';
-                    }else{
                         break;
-                    }
-                    break;
-                case (R.id.btn_subtract):
-                    if (!hasOperator){
-                        if (leftNum != 0){
-                            numString.replace(0,numString.length(),callCalculation());
-                            et_displayTotal.setText(numString);
-                        }
+                    case (R.id.btn_subtract):
                         setCalculation();
                         operator = '-';
-                    }else{
                         break;
-                    }
-                    break;
-                case (R.id.btn_add):
-                    if (!hasOperator){
-                        if (leftNum != 0){
-                            numString.replace(0,numString.length(),callCalculation());
-                            et_displayTotal.setText(numString);
-                        }
+                    case (R.id.btn_add):
                         setCalculation();
                         operator = '+';
-                    }else{
                         break;
-                    }
-                    break;
-                default:
-                    break;
+                    default:
+                        break;
+                }
+
+                et_displayTotal.setText(String.format("%s %c", et_displayTotal.getText(), operator));
             }
+
         }
     };
 
@@ -195,21 +187,34 @@ public class MainActivity extends AppCompatActivity {
                 case (R.id.btn_clear):
                     numString.replace(0,numString.length(),"");
                     isNewCalculation = true;
+                    hasOperator = false;
                     et_displayTotal.setText("0");
                     break;
                 case (R.id.btn_delete):
-                    if (numString.length() > 1 ){
-                        numString.deleteCharAt(numString.length()-1);
-                        et_displayTotal.setText(numString);
+                    if (Pattern.matches("^[+]?([.]\\d+|\\d+([.]\\d+)?)$",numString)){
+                        if (numString.length() > 1 ){
+                            numString.deleteCharAt(numString.length()-1);
+                            et_displayTotal.setText(numString);
+                        }else{
+                            numString.setLength(0);
+                            et_displayTotal.setText("0");
+                        }
                     }else{
-                        numString.setLength(0);
-                        et_displayTotal.setText("0");
+                        if (numString.length() > 2 ){
+                            numString.deleteCharAt(numString.length()-1);
+                            et_displayTotal.setText(numString);
+                        }else{
+                            numString.setLength(0);
+                            et_displayTotal.setText("0");
+                        }
                     }
                     break;
                 case (R.id.btn_evaluate):
-                    hasOperator = false;
-                    numString.replace(0,numString.length(),callCalculation());
-                    et_displayTotal.setText(numString);
+                    if (hasOperator && numString.length() != 0){
+                        hasOperator = false;
+                        numString.replace(0,numString.length(),callCalculation());
+                        et_displayTotal.setText(numString);
+                    }
                     break;
                 default:
                     break;
@@ -219,17 +224,23 @@ public class MainActivity extends AppCompatActivity {
 
     public void setCalculation(){
         hasOperator = true;
-        leftNum = Double.parseDouble(numString.toString());
+        if (numString.length() != 0){
+            leftNum = Double.parseDouble(numString.toString());
+
+        }else {
+            leftNum = 0;
+        }
         numString.setLength(0);
     }
 
     public String callCalculation(){
         rightNum = Double.parseDouble(numString.toString());
+
         double result = calculation.calculate(leftNum,rightNum,operator);
-        return Double.toString(result);
+        if (result % 1 == 0){
+            return Integer.toString((int)result);
+        }else{
+            return Double.toString(result);
+        }
     }
-
-
-
-
 }
