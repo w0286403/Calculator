@@ -2,12 +2,10 @@ package com.example.calculator;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
 
-import java.text.MessageFormat;
 import java.util.regex.*;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,14 +21,16 @@ public class MainActivity extends AppCompatActivity {
     double leftNum, rightNum;
     char operator;
     boolean hasOperator = false;
+    boolean isUndefined = false;
     StringBuilder numString = new StringBuilder("");
-    boolean isNewCalculation = true;
+    boolean zeroFirst = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        numString.setLength(0);
         et_displayTotal = findViewById(R.id.et_displayTotal);
 
         btn_clear = findViewById(R.id.btn_clear);
@@ -81,45 +81,95 @@ public class MainActivity extends AppCompatActivity {
     public View.OnClickListener onNumberClicked = new View.OnClickListener(){
         @Override
         public void onClick(View view){
-            if (isNewCalculation){
-                et_displayTotal.setText("");
+            if (isUndefined){
+                numString.setLength(0);
             }
-            isNewCalculation = false;
+            isUndefined = false;
+
+            if (Pattern.matches("^0+",numString) && !numString.toString().contains(".")){
+                zeroFirst = true;
+            }
 
             switch (view.getId()){
                 case (R.id.btn_zero):
-                    if (Pattern.matches("^0+$",numString)){
-                        break;
-                    }else{
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"0");
+
+                    }else {
                         numString.append("0");
                     }
                     break;
                 case (R.id.btn_one):
-                    numString.append("1");
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"1");
+
+                    }else{
+                        numString.append("1");
+                    }
                     break;
                 case (R.id.btn_two):
-                    numString.append("2");
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"2");
+
+                    }else {
+                        numString.append("2");
+                    }
                     break;
                 case (R.id.btn_three):
-                    numString.append("3");
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"3");
+
+                    }else {
+                        numString.append("3");
+                    }
                     break;
                 case (R.id.btn_four):
-                    numString.append("4");
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"4");
+
+                    }else {
+                        numString.append("4");
+                    }
                     break;
                 case (R.id.btn_five):
-                    numString.append("5");
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"5");
+
+                    }else {
+                        numString.append("5");
+                    }
                     break;
                 case (R.id.btn_six):
-                    numString.append("6");
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"6");
+
+                    }else {
+                        numString.append("6");
+                    }
                     break;
                 case (R.id.btn_seven):
-                    numString.append("7");
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"7");
+
+                    }else {
+                        numString.append("7");
+                    }
                     break;
                 case (R.id.btn_eight):
-                    numString.append("8");
+                    if (zeroFirst){
+                        numString.replace(numString.length()-1,numString.length(),"8");
+
+                    }else {
+                        numString.append("8");
+                    }
                     break;
                 case (R.id.btn_nine):
-                    numString.append("9");
+                    if (zeroFirst){
+                    numString.replace(numString.length()-1,numString.length(),"9");
+
+                }else {
+                        numString.append("9");
+                    }
                     break;
                 case (R.id.btn_decimal):
                     if (!numString.toString().contains(".")){
@@ -145,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 et_displayTotal.setText("0");
             }
+            zeroFirst = false;
         }
     };
 
@@ -152,8 +203,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
 
-            if (!hasOperator){
-                switch (view.getId()){
+            if (!hasOperator && !isUndefined) {
+                switch (view.getId()) {
                     case (R.id.btn_divide):
                         setCalculation();
                         operator = '/';
@@ -173,11 +224,11 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         break;
                 }
-
                 et_displayTotal.setText(String.format("%s %c", et_displayTotal.getText(), operator));
             }
 
         }
+
     };
 
     public View.OnClickListener onButtonClicked = new View.OnClickListener() {
@@ -186,7 +237,6 @@ public class MainActivity extends AppCompatActivity {
             switch (view.getId()){
                 case (R.id.btn_clear):
                     numString.replace(0,numString.length(),"");
-                    isNewCalculation = true;
                     hasOperator = false;
                     et_displayTotal.setText("0");
                     break;
@@ -224,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setCalculation(){
         hasOperator = true;
+
         if (numString.length() != 0){
             leftNum = Double.parseDouble(numString.toString());
 
@@ -236,6 +287,10 @@ public class MainActivity extends AppCompatActivity {
     public String callCalculation(){
         rightNum = Double.parseDouble(numString.toString());
 
+        if (rightNum == 0 && operator == '/'){
+            isUndefined = true;
+            return "undefined";
+        }
         double result = calculation.calculate(leftNum,rightNum,operator);
         if (result % 1 == 0){
             return Integer.toString((int)result);
