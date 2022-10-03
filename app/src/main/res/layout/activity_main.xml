@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:background="#FAD089"
         android:gravity="bottom"
-        android:theme="@style/Animation.Design.BottomSheetDialog"
+        android:theme="@style/CardView.Dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">

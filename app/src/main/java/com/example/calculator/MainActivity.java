@@ -1,5 +1,6 @@
 package com.example.calculator;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.*;
@@ -247,6 +248,10 @@ public class MainActivity extends AppCompatActivity {
                     tv_displayTotal.setText(currentNumber);
                     break;
                 case (R.id.btn_delete)://Regex to check if the currentNumber is positive
+                    if (isUndefined){
+                        currentNumber.replace(0, currentNumber.length(),"0");
+                        isUndefined = false;
+                    }
                     if (Pattern.matches("^[+]?([.]\\d+|\\d+([.]\\d+)?)$", currentNumber)){
                         if (currentNumber.length() > 1 ){//if positive deleting last number creates a 0
                             currentNumber.deleteCharAt(currentNumber.length()-1);
@@ -271,6 +276,9 @@ public class MainActivity extends AppCompatActivity {
                     if (hasOperator && currentNumber.length() != 0){ //Check that there is an operator and the current number (which will be right) has value
                         hasOperator = false; //set the operator to false so more calculations can be made
                         currentNumber.replace(0, currentNumber.length(),callCalculation());//replace the number string with the returned value from the call calculation method
+                        if (currentNumber.length() > textViewLimit){
+                            currentNumber.delete(textViewLimit,currentNumber.length());
+                        }
                         tv_displayTotal.setText(currentNumber);
                     }
                     break;
@@ -301,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         //Check if the equation will result in undefined IE dividing by 0
         if (rightNum == 0 && operator == '/'){
             isUndefined = true;
-            display = "undefined"; //
+            display = "NaN"; //
         }else{//if not call the calculate method from calculation class with numbers and operators
             result = calculation.calculate(leftNum,rightNum,operator);
             if (result % 1 == 0){//Check if the returned value has no digits after decimal and either return int or double
