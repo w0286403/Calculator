@@ -2,7 +2,6 @@ package com.example.calculator;
 
 public class Calculations {
 
-
     double calculate(double numLeft, double numRight, char op){
         double result = 0.0;
         switch (op){
