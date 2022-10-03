@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
     //Declare Boolean variables for validating buttons
     boolean hasOperator = false;
     boolean zeroFirst = false;
-    boolean newCalculation = true;
     boolean isUndefined = false;
 
     //Declare digit limit for screen
@@ -91,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
 
-
             //Check the previous calculation is finished and empty the current number
             if (isUndefined) {
                 currentNumber.replace(0, currentNumber.length(),"0");
@@ -99,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             isUndefined = false;
 
             //Check if the the first digit is a 0 in an integer (no decimal)
-            if (Pattern.matches("^0+", currentNumber) && !currentNumber.toString().contains(".")) {
+            if (Pattern.matches("^0+", currentNumber) && !currentNumber.toString().contains(".") || currentNumber.toString().contains("-0")) {
                 zeroFirst = true; //To avoid having 0 before other digits ie (00,01,etc)
             }
 
@@ -248,24 +246,26 @@ public class MainActivity extends AppCompatActivity {
                     isUndefined = false;
                     tv_displayTotal.setText(currentNumber);
                     break;
-                case (R.id.btn_delete):
+                case (R.id.btn_delete)://Regex to check if the currentNumber is positive
                     if (Pattern.matches("^[+]?([.]\\d+|\\d+([.]\\d+)?)$", currentNumber)){
-                        if (currentNumber.length() > 1 ){
+                        if (currentNumber.length() > 1 ){//if positive deleting last number creates a 0
                             currentNumber.deleteCharAt(currentNumber.length()-1);
                         }else{
                             currentNumber.replace(0, currentNumber.length(),"0");
+                            hasOperator = false;
+                            isUndefined = false;
                         }
-                        tv_displayTotal.setText(currentNumber);
-
-                    }else{
+                    }else{//when negative deleting last 2 digits creates 0
                         if (currentNumber.length() > 2 ){
                             currentNumber.deleteCharAt(currentNumber.length()-1);
                             tv_displayTotal.setText(currentNumber);
                         }else{
                             currentNumber.replace(0, currentNumber.length(),"0");
+                            hasOperator = false;
+                            isUndefined = false;
                         }
-                        tv_displayTotal.setText(currentNumber);
                     }
+                    tv_displayTotal.setText(currentNumber);
                     break;
                 case (R.id.btn_evaluate):
                     if (hasOperator && currentNumber.length() != 0){ //Check that there is an operator and the current number (which will be right) has value
@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         }else { //if nothing set the left num to 0
             leftNum = 0;
         }
-        currentNumber.setLength(0); //Set current number to nothing to make it available for the right Number
+        currentNumber.replace(0, currentNumber.length(),"0"); //Set current number to nothing to make it available for the right Number
     }
 
     public String callCalculation(){
